@@ -5,12 +5,18 @@ clear; clc
 % Simulate disease spreading on a 2D grid
 
 % Set parameter values
-N=200;              % Grid size (NxN)
+iter = 100000;
+N=400;              % Grid size (NxN)
 beta=0.2;           % Infection rate
 gamma=0.1;          % Immunity rate
 delta= 0.01;        % Re-infection rate
-epsilon = 0.01;      %  death rate
+epsilon = 0.01;     %  death rate
 Rinit = 5;
+
+dead_num = 0;
+diseased_num = 0;
+healthy_num = 0;
+immune_num = 0;
 
 % define grid
 x = zeros(N, N);    % The grid x, is coded as:  0=Susceptible, 
@@ -45,7 +51,7 @@ neigh = [-1 -1; 0 -1; 1 -1; 1 0; 1 1; 0 1; -1 1; -1 0];
 figure(1)
 
 % main loop, iterating the time variable, t
-for t=1:100000
+for t=1:iter
  
     % iterate over all cells in grid x, for index i=1..N and j=1..N
     for i=1:N
@@ -84,6 +90,10 @@ for t=1:100000
         end
     end
     
+    dead_num = [dead_num sum(x==3)];
+    diseased_num = [diseased_num sum(x==1)];
+    healthy_num = [healthy_num sum(x==0)];
+    immune_num = [immune_num sum(x==2)];
     % If no more infected => Stop the simulation
     if ( sum(x==1)==0 )
         x(x==2) = 0;
@@ -94,7 +104,10 @@ for t=1:100000
     clf                                 % Clear figure
     imagesc(x, [0 3])                   % Display grid
     colormap([1 1 1; 1 0 0; 0 1 0; 0 0 0]);    % Define colors: Red, Green, Blue
-    pause(0.00001)                         % Pause for 0.01 s
-    
+    pause(1e-10)
     if flag==1; break; end
 end
+ 
+% plot the phase space
+tot = healthy_num+immune_num+diseased_num;
+plot3(healthy_num./tot, immune_num./tot, diseased_num./tot)
